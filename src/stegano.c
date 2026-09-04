@@ -2,7 +2,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
+#include "../include/utilitaire.h"
 int cacher_texte_bmp(const char* input_path, const char* output_path,
                      const char* secret) {
   FILE* input_file = NULL;
@@ -76,5 +78,44 @@ int cacher_texte_bmp(const char* input_path, const char* output_path,
 
   fclose(input_file);
   fclose(output_file);
+  return 0;
+}
+
+int extraire_texte_bmp(const char* input_path) {
+  FILE* input_file = NULL;
+
+  input_file = fopen(input_path, "rb");
+  if (input_file == NULL) {
+    return 1;
+  }
+
+  unsigned char header[54];
+
+  if (fread(header, 1, 54, input_file) !=
+      54) {  // On ignore toujours les 54 premiers bits
+    fclose(input_file);
+    return 1;
+  }
+  char letter = 'a';  // La lettre avec une valeur par défault
+  int octet[8];       // Tableau de bit pour récupérer la lettre
+  memset(octet, 0, sizeof(octet));
+  int count = 0;        // Permet de savoir a quel bit nous en sommes
+  int pixel_actu;       // le pixel que nous sommes en train de modifié
+  int dernier_bit = 0;  // le dernier bit du pixel sur le quel nous travaillons
+
+  while (letter != '\0') {
+    while (count != 8) {
+      pixel_actu = fgetc(input_file);
+      dernier_bit = pixel_actu & 0x01;  // On ne veux que le dernier bit
+      octet[count] = dernier_bit;       // Remplissage du tableau
+      count++;
+    }
+    letter = octet_to_letter(octet);
+    printf("%c", letter); // On affiche le message pour l'utilisateur
+    count = 0;
+    memset(octet, 0, sizeof(octet));
+  }
+  printf("\n");
+  fclose(input_file);
   return 0;
 }

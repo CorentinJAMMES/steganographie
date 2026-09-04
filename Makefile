@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -I./include -g
-SRC = src/main.c src/bmpReader.c src/stegano.c
+SRC = src/main.c src/bmpReader.c src/stegano.c src/utilitaire.c
 OBJ = $(SRC:.c=.o)
 TARGET = stegano
 
